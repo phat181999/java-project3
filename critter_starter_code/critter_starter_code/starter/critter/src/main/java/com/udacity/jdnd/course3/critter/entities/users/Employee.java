@@ -13,8 +13,7 @@ import java.util.Set;
 public class Employee {
 
     @Id
-    /*@SequenceGenerator(name="employee_sequence")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "employee_sequence")*/
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,12 +23,7 @@ public class Employee {
     @Nationalized
     private String lastName;
 
-    /*
-    Variables that create collection (association) tables between:
 
-    -Employee and EmployeeSkill
-    -Employee and DayOfWeek
-     */
     @ElementCollection
     @JoinTable(name = "employee_skill")
     private Set<EmployeeSkill> employeeSkills;

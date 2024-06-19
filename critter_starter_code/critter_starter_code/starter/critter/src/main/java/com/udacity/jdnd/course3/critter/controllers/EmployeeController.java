@@ -35,10 +35,10 @@ public class EmployeeController {
 
     @PostMapping
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-        Employee employee = employeeDTOConverter.convertDTOToEmployee(employeeDTO);
+        Employee employee = employeeDTOConverter.convertDTOToEntity(employeeDTO);
         Employee savedEmployee = employeeService.saveEmployee(employee);
 
-        EmployeeDTO savedEmployeeDTO = employeeDTOConverter.convertEmployeeToDTO(savedEmployee);
+        EmployeeDTO savedEmployeeDTO = employeeDTOConverter.convertEntityToDTO(savedEmployee);
 
         return savedEmployeeDTO;
 
@@ -50,7 +50,7 @@ public class EmployeeController {
 
         List<EmployeeDTO> listOfEmployeesDTO;
         listOfEmployeesDTO = listOfEmployees.stream()
-                .map(employeeDTOConverter::convertEmployeeToDTO)
+                .map(employeeDTOConverter::convertEntityToDTO)
                 .collect(toList());
 
         return listOfEmployeesDTO;
@@ -60,7 +60,7 @@ public class EmployeeController {
     public EmployeeDTO getEmployee(@PathVariable long employeeID) {
         Employee employee = employeeService.getEmployeeByID(employeeID);
 
-        EmployeeDTO employeeDTO = employeeDTOConverter.convertEmployeeToDTO(employee);
+        EmployeeDTO employeeDTO = employeeDTOConverter.convertEntityToDTO(employee);
 
         return employeeDTO;
     }
@@ -80,7 +80,7 @@ public class EmployeeController {
 
         List<EmployeeDTO> listOfAvailableEmployeesDTO = listOfAvailableEmployees
                 .stream()
-                .map(employeeDTOConverter::convertEmployeeToDTO)
+                .map(employeeDTOConverter::convertEntityToDTO)
                 .collect(toList());
 
         return listOfAvailableEmployeesDTO;
@@ -102,7 +102,7 @@ public class EmployeeController {
 
         List<EmployeeDTO> employeesByLastNamePrefix_DTO = employeesByLastNamePrefix
                 .stream()
-                .map(employeeDTOConverter::convertEmployeeToDTO)
+                .map(employeeDTOConverter::convertEntityToDTO)
                 .collect(toList());
 
         return employeesByLastNamePrefix_DTO;

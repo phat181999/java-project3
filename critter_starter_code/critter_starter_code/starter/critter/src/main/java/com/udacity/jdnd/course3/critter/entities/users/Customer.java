@@ -14,8 +14,7 @@ import java.util.List;
 public class Customer {
 
     @Id
-    /*@SequenceGenerator(name="customer_sequence")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_sequence")*/
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -28,7 +27,6 @@ public class Customer {
     private String phoneNumber;
     private String notes;
 
-    //Defines a one to many relationship between Customer and Pet
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Pet> pets;
 

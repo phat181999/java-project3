@@ -14,44 +14,37 @@ public class PetDTOConverter {
     @Autowired
     private CustomerService customerService;
 
-    /**
-     * -Converts a Pet object to a PetDTO
-     * -Links a customer with the specified PetDTO instance
-     *
-     * @param pet
-     * @return petDTO, the pet object in DTO form
-     */
-    public PetDTO convertPetToDTO(Pet pet){
+ 
+    public PetDTO convertEntityToDTO(Pet pet){
         PetDTO petDTO = new PetDTO();
-        Long customerID = pet.getCustomer().getId();
+        if (pet.getCustomer() != null) {
+            Long customerId = pet.getCustomer().getId();
+            BeanUtils.copyProperties(pet, petDTO, "customer", "petType");
+            petDTO.setOwnerId(customerId);
+        }
 
-        BeanUtils.copyProperties(pet, petDTO, "customer", "petType");
-
-        //Adds the customer to the PetDTO instance
-        Customer customer = customerService.getCustomerByID(customerID);
-        petDTO.setOwnerId(customer.getId());
-        petDTO.setType(pet.getPetType());
+        if (pet.getPetType() != null) {
+            petDTO.setType(pet.getPetType());
+        }
 
         return petDTO;
     }
 
-    /**
-     * -Converts a PetDTO object to a Pet
-     * -Links a customer with the specified Pet instance
-     *
-     * @param petDTO
-     * @return pet, The object in Pet form
-     */
-    public Pet convertDTOToPet(PetDTO petDTO){
+  
+    public Pet convertDTOToEntity(PetDTO petDTO){
         Pet pet = new Pet();
-        Long customerID = petDTO.getOwnerId();
+        Long customerId = petDTO.getOwnerId();
 
         BeanUtils.copyProperties(petDTO, pet, "ownerId", "type");
 
-        //Adds the customer to the Pet instance
-        Customer customer = customerService.getCustomerByID(customerID);
-        pet.setCustomer(customer);
-        pet.setPetType(petDTO.getType());
+        if (customerId != null) {
+            Customer customer = customerService.getCustomerByID(customerId);
+            pet.setCustomer(customer);
+        }
+
+        if (petDTO.getType() != null) {
+            pet.setPetType(petDTO.getType());
+        }
 
         return pet;
     }

@@ -30,9 +30,4 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     )
     List<Employee> getAvailableEmployeesByDOW(@Param("dayOfWeek") DayOfWeek dayOfWeek);
 
-    //Search for employees whose last name starts with a certain letter
-    /*@Query("Select e from Employee e " +
-            "WHERE e.lastName like :lastName%")
-    List<Employee> getEmployeeByLastNameStartsWith(@Param("firstLetter") String firstLetter);*/
-
 }

@@ -15,20 +15,12 @@ import java.util.Set;
 public class Schedule {
 
     @Id
-    /*@SequenceGenerator(name="schedule_sequence")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "schedule_sequence")*/
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private LocalDate date;
 
-    /*
-    Statements that create association tables between:
-
-    -Schedule and Employee
-    -Schedule and Pet
-    -Schedule and Customer
-     */
     @ManyToMany
     @JoinTable(
             name = "schedule_employee",
@@ -41,21 +33,6 @@ public class Schedule {
             inverseJoinColumns = @JoinColumn(name = "pet_id"))
     private List<Pet> pets;
 
-    /*@ManyToMany
-    @JoinTable(
-       name = "schedule_customer",
-       inverseJoinColumns = @JoinColumn(name = "customer_id")
-    )
-    private List<Customer> customers;*/
-
-
-    /*
-    Creates a collection (association) table between:
-
-    -Schedule and EmployeeSkill
-
-    Schedule: Controls the association
-     */
     @ElementCollection
     @JoinTable(name = "schedule_skill")
     private Set<EmployeeSkill> skills;

@@ -18,59 +18,55 @@ public class PetService {
     private PetRepository petRepository;
 
     @Autowired
-    private CustomerRepository customerRepository;
-
-    @Autowired
     private CustomerService customerService;
 
-    public List<Pet> getAllPets(){
-        List<Pet> pets = petRepository.getAllPets();
+    public List<Pet> getAllPets() {
+        return petRepository.getAllPets();
+    }
 
+    public Pet getPetByID(Long petID) {
+        return petRepository.getPetByID(petID);
+    }
+
+    public List<Pet> getAllPetsByCustomerID(Long customerID) {
+        if (customerID == null) {
+            throw new IllegalArgumentException("Customer ID cannot be null");
+        }
+    
+        List<Pet> pets = petRepository.getAllPetsByCustomerID(customerID);
+        if (pets == null || pets.isEmpty()) {
+            throw new RuntimeException("No pets found for Customer ID: " + customerID);
+        }
+    
         return pets;
     }
 
-    public Pet getPetByID(Long petID){
-        Pet pet = petRepository.getPetByID(petID);
-
-        return pet;
-    }
-
-    public List<Pet> getAllPetsByCustomerID(Long customerID){
-        List<Pet> petsByCustomerID = petRepository.getAllPetsByCustomerID(customerID);
-
-        return petsByCustomerID;
-    }
-
-    /**
-     * Method that:
-     *
-     * -Saves pet information via savedPet
-     *
-     * -Fetches the customer based on the customer ID supplied
-     * in the corresponding PetController request body
-     *
-     * -Adds the saved pet to the customer's pet list
-     *
-     * -Returns the saved pet instance
-     *
-     * @param pet, The pet to save
-     * @return savedPet
-     */
-    public Pet savePet(Pet pet){
-
+    public Pet savePet(Pet pet) {
+        if (pet == null) {
+            throw new IllegalArgumentException("Pet cannot be null");
+        }
+    
         Pet savedPet = petRepository.save(pet);
         Customer customer = savedPet.getCustomer();
-
+        if (customer == null) {
+            throw new RuntimeException("Customer not found for the pet");
+        }
+    
         customerService.addPetToCustomer(savedPet, customer);
-
+    
         return savedPet;
     }
 
-    public void deletePetByID(Long petID){
-
+    public void deletePetByID(Long petID) {
+        if (petID == null) {
+            throw new IllegalArgumentException("Pet ID cannot be null");
+        }
+    
         Pet pet = petRepository.getPetByID(petID);
-
+        if (pet == null) {
+            throw new RuntimeException("Pet not found with ID: " + petID);
+        }
+    
         petRepository.delete(pet);
     }
-
 }

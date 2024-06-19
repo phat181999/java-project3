@@ -5,10 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
-/**
- * Represents the form that pet request and response data takes. Does not map
- * to the database directly.
- */
 @Data
 public class PetDTO {
     private long id;

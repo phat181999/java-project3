@@ -12,51 +12,38 @@ import java.util.Set;
 @Component
 public class EmployeeDTOConverter {
 
-    /**
-     * Converts an Employee object to an EmployeeDTO
-     *
-     * @param employee
-     * @return employeeDTO, the employee object in DTO form
-     */
-    public EmployeeDTO convertEmployeeToDTO(Employee employee){
+   
+    public EmployeeDTO convertEntityToDTO(Employee employee){
         EmployeeDTO employeeDTO = new EmployeeDTO();
-        Set<EmployeeSkill> employeeSkills = employee.getEmployeeSkills();
-        Set<DayOfWeek> dowAvailable = employee.getEmployeeDaysOfWeekAvailable();
 
-        /*
-        Maps properties from Employee to EmployeeDTO
-
-        The employeeSkills and employeeDaysOfWeekAvailable properties are ignored since
-        EmployeeDTO does not contain variables with those names
-         */
         BeanUtils.copyProperties(employee, employeeDTO, "employeeSkills", "employeeDaysOfWeekAvailable");
 
-        employeeDTO.setSkills(employeeSkills);
-        employeeDTO.setDaysAvailable(dowAvailable);
+        if (employee.getEmployeeSkills() != null) {
+            employeeDTO.setSkills(employee.getEmployeeSkills());
+        }
+
+        if (employee.getEmployeeDaysOfWeekAvailable() != null) {
+            employeeDTO.setDaysAvailable(employee.getEmployeeDaysOfWeekAvailable());
+        }
 
         return employeeDTO;
     }
 
-    /**
-     * Converts an EmployeeDTO object to an Employee
-     *
-     * @param employeeDTO
-     * @return employee, The Employee object
-     */
-    public Employee convertDTOToEmployee(EmployeeDTO employeeDTO){
+ 
+    public Employee convertDTOToEntity(EmployeeDTO employeeDTO){
         Employee employee = new Employee();
 
-        /*
-        Maps properties from EmployeeDTO to Employee
-
-        The skills and daysAvailable properties are ignored since
-        Employee does not contain variables with those names
-         */
         BeanUtils.copyProperties(employeeDTO, employee, "skills", "daysAvailable");
 
-        employee.setEmployeeSkills(employeeDTO.getSkills());
-        employee.setEmployeeDaysOfWeekAvailable(employeeDTO.getDaysAvailable());
+        if (employeeDTO.getSkills() != null) {
+            employee.setEmployeeSkills(employeeDTO.getSkills());
+        }
+
+        if (employeeDTO.getDaysAvailable() != null) {
+            employee.setEmployeeDaysOfWeekAvailable(employeeDTO.getDaysAvailable());
+        }
 
         return employee;
+
     }
 }

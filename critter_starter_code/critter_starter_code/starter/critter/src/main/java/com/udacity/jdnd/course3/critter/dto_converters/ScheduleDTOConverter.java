@@ -26,7 +26,7 @@ public class ScheduleDTOConverter {
 
 
 
-    public ScheduleDTO convertScheduleToDTO(Schedule schedule){
+    public ScheduleDTO convertEntityToDTO(Schedule schedule){
         ScheduleDTO scheduleDTO = new ScheduleDTO();
         BeanUtils.copyProperties(schedule, scheduleDTO);
 
@@ -48,15 +48,27 @@ public class ScheduleDTOConverter {
         return scheduleDTO;
     }
 
-    public Schedule convertDTOToSchedule(ScheduleDTO scheduleDTO){
+    public Schedule convertDTOToEntity(ScheduleDTO scheduleDTO){
         Schedule schedule = new Schedule();
 
         BeanUtils.copyProperties(scheduleDTO, schedule);
 
-        schedule.setDate(scheduleDTO.getDate());
-        schedule.setSkills(scheduleDTO.getActivities());
-        schedule.setEmployees(employeeRepository.findAllById(scheduleDTO.getEmployeeIds()));
-        schedule.setPets(petRepository.findAllById(scheduleDTO.getPetIds()));
+        if (scheduleDTO.getDate() != null) {
+            schedule.setDate(scheduleDTO.getDate());
+        }
+        if (scheduleDTO.getActivities() != null) {
+            schedule.setSkills(scheduleDTO.getActivities());
+        }
+        
+        if (scheduleDTO.getEmployeeIds() != null && !scheduleDTO.getEmployeeIds().isEmpty()) {
+            List<Employee> employees = employeeRepository.findAllById(scheduleDTO.getEmployeeIds());
+            schedule.setEmployees(employees);
+        }
+        
+        if (scheduleDTO.getPetIds() != null && !scheduleDTO.getPetIds().isEmpty()) {
+            List<Pet> pets = petRepository.findAllById(scheduleDTO.getPetIds());
+            schedule.setPets(pets);
+        }
 
         return schedule;
     }

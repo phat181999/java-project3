@@ -43,10 +43,10 @@ public class CustomerController {
 
     @PostMapping
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
-        Customer customer = customerDTOConverter.convertDTOToCustomer(customerDTO);
+        Customer customer = customerDTOConverter.toEntity(customerDTO);
         Customer savedCustomer = customerService.saveCustomer(customer);
 
-        CustomerDTO savedCustomerDTO = customerDTOConverter.convertCustomerToDTO(savedCustomer);
+        CustomerDTO savedCustomerDTO = customerDTOConverter.toDTO(savedCustomer);
 
         return savedCustomerDTO;
     }
@@ -58,7 +58,7 @@ public class CustomerController {
         List<CustomerDTO> listOfCustomersDTO;
 
         listOfCustomersDTO = listOfCustomers.stream()
-                .map(customerDTOConverter::convertCustomerToDTO)
+                .map(customerDTOConverter::toDTO)
                 .collect(toList());
 
         return listOfCustomersDTO;
@@ -68,7 +68,7 @@ public class CustomerController {
     @GetMapping("/{customerID}")
     public CustomerDTO getCustomer(@PathVariable long customerID) {
         Customer customer = customerService.getCustomerByID(customerID);
-        CustomerDTO customerDTO = customerDTOConverter.convertCustomerToDTO(customer);
+        CustomerDTO customerDTO = customerDTOConverter.toDTO(customer);
 
         return customerDTO;
 
@@ -78,7 +78,7 @@ public class CustomerController {
     public CustomerDTO getOwnerByPet(@PathVariable long petID){
         Customer customerByPetID = customerService.getCustomerByPetID(petID);
 
-        CustomerDTO customerByPetID_DTO = customerDTOConverter.convertCustomerToDTO(customerByPetID);
+        CustomerDTO customerByPetID_DTO = customerDTOConverter.toDTO(customerByPetID);
 
         return customerByPetID_DTO;
     }

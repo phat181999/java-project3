@@ -14,8 +14,7 @@ import java.time.LocalDate;
 public class Pet {
 
     @Id
-    /*@SequenceGenerator(name="pet_sequence")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pet_sequence")*/
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -28,12 +27,6 @@ public class Pet {
 
     private String notes;
 
-    /*
-    Declares the Pet end of the "one to many" relationship with Customer
-
-    Adds customer_id as a foreign key in Pet
-    which references the id in Customer
-     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;

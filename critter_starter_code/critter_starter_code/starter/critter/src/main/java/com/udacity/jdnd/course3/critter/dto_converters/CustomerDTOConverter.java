@@ -19,40 +19,35 @@ public class CustomerDTOConverter {
     @Autowired
     private CustomerService customerService;
 
-    /**
-     * Method that:
-     *
-     * -Converts a Customer object to a CustomerDTO
-     * -Links pets to a specific CustomerDTO instance
-     *
-     * @param customer
-     * @return customerDTO, the customer object in DTO form
-     */
     public CustomerDTO convertCustomerToDTO(Customer customer){
+        if (customer == null) {
+            throw new IllegalArgumentException("Customer must not be null");
+        }
+    
         CustomerDTO customerDTO = new CustomerDTO();
-
+    
         BeanUtils.copyProperties(customer, customerDTO);
-
-        /*
-        Invokes the helper method below and adds pets to the CustomerDTO object
-         */
-        List<Long> petIDs = customerService.generatePetIDListForCustomerDTO(customer);
+    
+        List<Long> petIDs = null;
+        try {
+            petIDs = customerService.generatePetIDListForCustomerDTO(customer);
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating pet IDs for customer: " + customer.getId(), e);
+        }
         customerDTO.setPetIds(petIDs);
-
+    
         return customerDTO;
     }
 
-    /**
-     * Converts a CustomerDTO object to a Customer
-     *
-     * @param customerDTO
-     * @return customer, the Customer object
-     */
     public Customer convertDTOToCustomer(CustomerDTO customerDTO) {
+        if (customerDTO == null) {
+            throw new IllegalArgumentException("CustomerDTO must not be null");
+        }
+    
         Customer customer = new Customer();
-
+    
         BeanUtils.copyProperties(customerDTO, customer);
-
+    
         return customer;
 
     }

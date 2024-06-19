@@ -56,11 +56,11 @@ public class PetController {
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
 
-        Pet pet = petDTOConverter.convertDTOToPet(petDTO);
+        Pet pet = petDTOConverter.convertDTOToEntity(petDTO);
 
         Pet savedPet = petService.savePet(pet);
 
-        PetDTO savedPetDTO = petDTOConverter.convertPetToDTO(savedPet);
+        PetDTO savedPetDTO = petDTOConverter.convertEntityToDTO(savedPet);
         savedPetDTO.setType(savedPetDTO.getType());
 
         return savedPetDTO;
@@ -70,7 +70,7 @@ public class PetController {
     public PetDTO getPet(@PathVariable long petID) {
         Pet pet = petService.getPetByID(petID);
 
-        PetDTO petDTO = petDTOConverter.convertPetToDTO(pet);
+        PetDTO petDTO = petDTOConverter.convertEntityToDTO(pet);
 
         return petDTO;
     }
@@ -80,7 +80,7 @@ public class PetController {
         List<Pet> listOfAllPets = petService.getAllPets();
 
         List<PetDTO> listOfAllPetsDTO = listOfAllPets.stream()
-                .map(petDTOConverter::convertPetToDTO)
+                .map(petDTOConverter::convertEntityToDTO)
                 .collect(toList());
 
         return listOfAllPetsDTO;
@@ -91,7 +91,7 @@ public class PetController {
         List<Pet> listOfPetsByCustomerID = petService.getAllPetsByCustomerID(customerID);
 
         List<PetDTO> listOfPetsByCustomerID_DTO = listOfPetsByCustomerID.stream()
-                .map(petDTOConverter::convertPetToDTO)
+                .map(petDTOConverter::convertEntityToDTO)
                 .collect(toList());
 
         return listOfPetsByCustomerID_DTO;
