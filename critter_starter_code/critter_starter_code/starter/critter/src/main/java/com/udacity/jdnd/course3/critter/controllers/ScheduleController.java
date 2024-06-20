@@ -3,7 +3,6 @@ package com.udacity.jdnd.course3.critter.controllers;
 import com.udacity.jdnd.course3.critter.dto_converters.ScheduleDTOConverter;
 import com.udacity.jdnd.course3.critter.dtos.ScheduleDTO;
 import com.udacity.jdnd.course3.critter.entities.Schedule;
-import com.udacity.jdnd.course3.critter.repositories.ScheduleRepository;
 import com.udacity.jdnd.course3.critter.services.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +13,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-/**
- * Handles web requests related to Schedules.
- */
 @RestController
 @RequestMapping("/schedules")
 public class ScheduleController {

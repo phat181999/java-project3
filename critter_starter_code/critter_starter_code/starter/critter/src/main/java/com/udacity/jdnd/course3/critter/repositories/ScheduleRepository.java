@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
-    //Retrieves all schedules
     @Query("Select s from Schedule s")
     List<Schedule> getAllSchedules();
 
@@ -20,7 +19,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("Select s from Schedule s where s.id = :scheduleID")
     Schedule getScheduleByID(@Param("scheduleID") Long scheduleID);
 
-    //Gets the schedules for a specific pet
     @Query(
         "SELECT s from Schedule s" +
         " INNER JOIN s.pets sp" +
@@ -28,7 +26,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     )
     List<Schedule> getAllSchedulesByPetID(@Param("petID") Long petID);
 
-    //Gets the schedules for a specific employee
     @Query(
         "SELECT s from Schedule s" +
         " INNER JOIN s.employees se" +
@@ -36,7 +33,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     )
     List<Schedule> getAllSchedulesByEmployeeID(@Param("employeeID") Long employeeID);
 
-    //Gets the schedules for a specific customer (owner)
     @Query(
         "SELECT s from Schedule s" +
         " INNER JOIN s.pets sp" +

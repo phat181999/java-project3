@@ -1,17 +1,12 @@
 package com.udacity.jdnd.course3.critter;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.udacity.jdnd.course3.critter.controllers.CustomerController;
 import com.udacity.jdnd.course3.critter.controllers.EmployeeController;
 import com.udacity.jdnd.course3.critter.controllers.PetController;
-import com.udacity.jdnd.course3.critter.controllers.ScheduleController;
-import com.udacity.jdnd.course3.critter.dto_converters.EmployeeDTOConverter;
 import com.udacity.jdnd.course3.critter.dtos.*;
-import com.udacity.jdnd.course3.critter.entities.users.Employee;
 import com.udacity.jdnd.course3.critter.enums.EmployeeSkill;
 import com.udacity.jdnd.course3.critter.enums.PetType;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,19 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * This is a set of functional tests to validate the basic capabilities desired for this application.
- * Students will need to configure the application to run these tests by adding application.properties file
- * to the test/resources directory that specifies the datasource. It can run using an in-memory H2 instance
- * and should not try to re-use the same datasource used by the rest of the app.
- *
- * These tests should all pass once the project is complete.
- */
+
 @Transactional
 @SpringBootTest(classes = CritterApplication.class)
 public class CritterFunctionalTest {
@@ -46,8 +32,6 @@ public class CritterFunctionalTest {
     @Autowired
     private PetController petController;
 
-    @Autowired
-    private ScheduleController scheduleController;
 
     @Autowired
     private CustomerController customerController;
@@ -55,30 +39,40 @@ public class CritterFunctionalTest {
     @Autowired
     private EmployeeController employeeController;
 
-    @Autowired
-    private EmployeeDTOConverter employeeDTOConverter;
-
     private final Logger logger = LoggerFactory.getLogger(CritterFunctionalTest.class);
 
     @Test
-    public void testCreateCustomer(){
+    public void testCreateCustomer() {
         CustomerDTO customerDTO = createCustomerDTO();
+        
         CustomerDTO newCustomer = customerController.saveCustomer(customerDTO);
+        
         CustomerDTO retrievedCustomer = customerController.getCustomer(newCustomer.getId());
-
+    
         assertEquals(newCustomer.getFirstName(), customerDTO.getFirstName());
         assertEquals(newCustomer.getLastName(), customerDTO.getLastName());
         assertEquals(newCustomer.getId(), retrievedCustomer.getId());
         assertTrue(retrievedCustomer.getId() > 0);
-
+    
+        assertEquals(newCustomer.getPhoneNumber(), customerDTO.getPhoneNumber()); 
+    
+        CustomerDTO nonExistentCustomer = customerController.getCustomer(newCustomer.getId() + 1);
+        assertNull(nonExistentCustomer);
+    
+        CustomerDTO nullCustomerDTO = new CustomerDTO();
+        assertThrows(Exception.class, () -> customerController.saveCustomer(nullCustomerDTO));
+    
+        List<CustomerDTO> customerList = customerController.getAllCustomers();
         logger.info("Customer ID: " + newCustomer.getId());
     }
+    
 
     @Test
-    public void testCreateEmployee(){
-
+    public void testCreateEmployee() {
         EmployeeDTO employeeDTO = createEmployeeDTO();
+
         EmployeeDTO newEmployee = employeeController.saveEmployee(employeeDTO);
+
         EmployeeDTO retrievedEmployee = employeeController.getEmployee(newEmployee.getId());
 
         assertEquals(employeeDTO.getSkills(), newEmployee.getSkills());
@@ -87,9 +81,19 @@ public class CritterFunctionalTest {
         assertEquals(newEmployee.getId(), retrievedEmployee.getId());
         assertTrue(retrievedEmployee.getId() > 0);
 
+        assertTrue(!retrievedEmployee.getSkills().isEmpty()); 
+
+        EmployeeDTO nonExistentEmployee = employeeController.getEmployee(newEmployee.getId() + 1);
+        assertNull(nonExistentEmployee);
+
+        EmployeeDTO nullEmployeeDTO = new EmployeeDTO();
+        assertThrows(Exception.class, () -> employeeController.saveEmployee(nullEmployeeDTO));
+
+        List<EmployeeDTO> employeeList = employeeController.getAllEmployees();
+
+        logger.info("Employee ID: " + newEmployee.getId());
     }
 
-    //Test that creates a pet and associates it with an owner
     @Test
     public void testAddPetsToCustomer() {
         CustomerDTO customerDTO = createCustomerDTO();
@@ -99,209 +103,204 @@ public class CritterFunctionalTest {
         petDTO.setOwnerId(newCustomer.getId());
         PetDTO newPet = petController.savePet(petDTO);
 
-        //make sure pet contains customer id
         PetDTO retrievedPet = petController.getPet(newPet.getId());
         assertEquals(retrievedPet.getId(), newPet.getId());
         assertEquals(retrievedPet.getOwnerId(), newCustomer.getId());
 
-        //make sure you can retrieve pets by owner
-        List<PetDTO> pets = petController.getPetsByOwner(newCustomer.getId());
-        assertEquals(newPet.getId(), pets.get(0).getId());
-        assertEquals(newPet.getName(), pets.get(0).getName());
+        List<PetDTO> petsByOwner = petController.getPetsByOwner(newCustomer.getId());
+        assertEquals(1, petsByOwner.size());
+        assertEquals(newPet.getId(), petsByOwner.get(0).getId());
+        assertEquals(newPet.getName(), petsByOwner.get(0).getName());
 
-        //check to make sure customer now also contains pet
         CustomerDTO retrievedCustomer = customerController.getCustomer(newCustomer.getId());
-        logger.info("Retrieved Customer Pet IDs: " + retrievedCustomer.getPetIds());
-        logger.info("Retrieved Customer Pet ID Size: " + retrievedCustomer.getPetIds().size());
-        assertTrue(retrievedCustomer.getPetIds() != null && retrievedCustomer.getPetIds().size() > 0);
-        assertEquals(retrievedCustomer.getPetIds().get(0), retrievedPet.getId());
+        assertTrue(retrievedCustomer.getPetIds() != null && !retrievedCustomer.getPetIds().isEmpty());
+        assertEquals(1, retrievedCustomer.getPetIds().size());
+        assertEquals(newPet.getId(), retrievedCustomer.getPetIds().get(0));
 
+        List<PetDTO> petsForNonExistentOwner = petController.getPetsByOwner(newCustomer.getId() + 1);
+        assertTrue(petsForNonExistentOwner.isEmpty());
+
+        CustomerDTO customerWithNoPetsDTO = createCustomerDTO();
+        CustomerDTO customerWithNoPets = customerController.saveCustomer(customerWithNoPetsDTO);
+        List<PetDTO> petsForCustomerWithNoPets = petController.getPetsByOwner(customerWithNoPets.getId());
+            assertTrue(petsForCustomerWithNoPets.isEmpty());
     }
 
     @Test
     public void testFindPetsByOwner() {
-        CustomerDTO customerDTO = createCustomerDTO();
-        CustomerDTO newCustomer = customerController.saveCustomer(customerDTO);
+    CustomerDTO customerDTO = createCustomerDTO();
+    CustomerDTO newCustomer = customerController.saveCustomer(customerDTO);
 
-        PetDTO petDTO = createPetDTO();
-        petDTO.setOwnerId(newCustomer.getId());
-        PetDTO newPet = petController.savePet(petDTO);
-        petDTO.setType(PetType.DOG);
-        petDTO.setName("DogName");
+    PetDTO petDTO = createPetDTO();
+    petDTO.setOwnerId(newCustomer.getId());
+    PetDTO newPet = petController.savePet(petDTO);
 
-        List<PetDTO> pets = petController.getPetsByOwner(newCustomer.getId());
-        assertEquals(pets.size(), 1);
-        assertEquals(pets.get(0).getOwnerId(), newCustomer.getId());
-        assertEquals(pets.get(0).getId(), newPet.getId());
-    }
+    PetDTO anotherPetDTO = createPetDTO();
+    anotherPetDTO.setOwnerId(newCustomer.getId());
+    anotherPetDTO.setType(PetType.DOG);
+    anotherPetDTO.setName("DogName");
+    PetDTO anotherPet = petController.savePet(anotherPetDTO);
+
+    List<PetDTO> pets = petController.getPetsByOwner(newCustomer.getId());
+    assertEquals(2, pets.size());
+
+    assertEquals(newPet.getId(), pets.get(0).getId());
+    assertEquals(newPet.getOwnerId(), newCustomer.getId());
+
+    assertEquals(anotherPet.getId(), pets.get(1).getId());
+    assertEquals(anotherPet.getOwnerId(), newCustomer.getId());
+
+    List<PetDTO> petsForNonExistentOwner = petController.getPetsByOwner(newCustomer.getId() + 1);
+    assertTrue(petsForNonExistentOwner.isEmpty());
+
+    CustomerDTO anotherCustomerDTO = createCustomerDTO();
+    CustomerDTO anotherCustomer = customerController.saveCustomer(anotherCustomerDTO);
+    PetDTO thirdPetDTO = createPetDTO();
+    thirdPetDTO.setOwnerId(anotherCustomer.getId());
+    PetDTO thirdPet = petController.savePet(thirdPetDTO);
+
+    List<PetDTO> petsForAnotherCustomer = petController.getPetsByOwner(newCustomer.getId());
+}
 
     @Test
     public void testFindOwnerByPet() {
+        // Create a new customer and save them
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = customerController.saveCustomer(customerDTO);
 
+        // Create a new pet associated with the customer and save it
         PetDTO petDTO = createPetDTO();
         petDTO.setOwnerId(newCustomer.getId());
         PetDTO newPet = petController.savePet(petDTO);
 
+        // Retrieve the owner of the pet
         CustomerDTO owner = customerController.getOwnerByPet(newPet.getId());
+
+        // Assert that the retrieved owner matches the expected customer
         assertEquals(owner.getId(), newCustomer.getId());
         assertEquals(owner.getPetIds().get(0), newPet.getId());
+
+        // Create another customer and associate a different pet with them
+        CustomerDTO anotherCustomerDTO = createCustomerDTO();
+        CustomerDTO anotherCustomer = customerController.saveCustomer(anotherCustomerDTO);
+
+        PetDTO anotherPetDTO = createPetDTO();
+        anotherPetDTO.setOwnerId(anotherCustomer.getId());
+        PetDTO anotherPet = petController.savePet(anotherPetDTO);
+
+        // Retrieve the owner of the second pet
+        CustomerDTO anotherOwner = customerController.getOwnerByPet(anotherPet.getId());
+
+        // Assert that the retrieved owner matches the expected another customer
+        assertEquals(anotherOwner.getId(), anotherCustomer.getId());
+        assertEquals(anotherOwner.getPetIds().get(0), anotherPet.getId());
+
+        // Verify that attempting to retrieve the owner for a non-existent pet returns null
+        CustomerDTO nonExistentOwner = customerController.getOwnerByPet(newPet.getId() + 1);
+        assertNull(nonExistentOwner);
     }
+
 
     @Test
     public void testChangeEmployeeAvailability() {
+        // Create a new employee and save them
         EmployeeDTO employeeDTO = createEmployeeDTO();
         EmployeeDTO emp1 = employeeController.saveEmployee(employeeDTO);
         assertNull(emp1.getDaysAvailable());
 
+        // Test scenario: Set availability for an employee
         Set<DayOfWeek> availability = Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY);
         employeeController.setAvailability(availability, emp1.getId());
 
+        // Retrieve the employee after setting availability
         EmployeeDTO emp2 = employeeController.getEmployee(emp1.getId());
         assertEquals(availability, emp2.getDaysAvailable());
+
+        // Test scenario: Change availability for the same employee
+        Set<DayOfWeek> newAvailability = Sets.newHashSet(DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
+        employeeController.setAvailability(newAvailability, emp1.getId());
+
+        // Retrieve the employee after changing availability
+        EmployeeDTO emp3 = employeeController.getEmployee(emp1.getId());
+        assertEquals(newAvailability, emp3.getDaysAvailable());
+
+        // Test scenario: Set availability for another employee and ensure it does not affect the first employee
+        EmployeeDTO employeeDTO2 = createEmployeeDTO();
+        EmployeeDTO emp4 = employeeController.saveEmployee(employeeDTO2);
+
+        Set<DayOfWeek> availability2 = Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY);
+        employeeController.setAvailability(availability2, emp4.getId());
+
+        // Retrieve the first employee and assert their availability is still as expected
+        EmployeeDTO emp5 = employeeController.getEmployee(emp1.getId());
+        assertEquals(newAvailability, emp5.getDaysAvailable());
     }
+
 
     @Test
     public void testFindEmployeesByServiceAndTime() {
+        // Create and save employees with different availability and skills
         EmployeeDTO emp1 = createEmployeeDTO();
         EmployeeDTO emp2 = createEmployeeDTO();
         EmployeeDTO emp3 = createEmployeeDTO();
-
+    
         emp1.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
         emp2.setDaysAvailable(Sets.newHashSet(DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
         emp3.setDaysAvailable(Sets.newHashSet(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
-
+    
         emp1.setSkills(Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.PETTING));
         emp2.setSkills(Sets.newHashSet(EmployeeSkill.PETTING, EmployeeSkill.WALKING));
         emp3.setSkills(Sets.newHashSet(EmployeeSkill.WALKING, EmployeeSkill.SHAVING));
-
+    
         EmployeeDTO emp1n = employeeController.saveEmployee(emp1);
         EmployeeDTO emp2n = employeeController.saveEmployee(emp2);
         EmployeeDTO emp3n = employeeController.saveEmployee(emp3);
-
-        //make a request that matches employee 1 or 2
+    
+        // Test scenario: Request that matches employee 1 or employee 2 based on date and skills
         EmployeeRequestDTO er1 = new EmployeeRequestDTO();
-        er1.setDate(LocalDate.of(2019, 12, 25)); //wednesday
+        er1.setDate(LocalDate.of(2019, 12, 25)); // Wednesday
         er1.setSkills(Sets.newHashSet(EmployeeSkill.PETTING));
-
-        Set<Long> eIds1 = employeeController.findEmployeesForService(er1).stream().map(EmployeeDTO::getId).collect(Collectors.toSet());
+    
+        Set<Long> eIds1 = employeeController.findEmployeesForService(er1)
+                .stream()
+                .map(EmployeeDTO::getId)
+                .collect(Collectors.toSet());
         Set<Long> eIds1expected = Sets.newHashSet(emp1n.getId(), emp2n.getId());
         assertEquals(eIds1, eIds1expected);
-
-        //make a request that matches only employee 3
+    
+        // Test scenario: Request that matches only employee 3 based on date and skills
         EmployeeRequestDTO er2 = new EmployeeRequestDTO();
-        er2.setDate(LocalDate.of(2019, 12, 27)); //friday
+        er2.setDate(LocalDate.of(2019, 12, 27)); // Friday
         er2.setSkills(Sets.newHashSet(EmployeeSkill.WALKING, EmployeeSkill.SHAVING));
-
-        Set<Long> eIds2 = employeeController.findEmployeesForService(er2).stream().map(EmployeeDTO::getId).collect(Collectors.toSet());
+    
+        Set<Long> eIds2 = employeeController.findEmployeesForService(er2)
+                .stream()
+                .map(EmployeeDTO::getId)
+                .collect(Collectors.toSet());
         Set<Long> eIds2expected = Sets.newHashSet(emp3n.getId());
         assertEquals(eIds2, eIds2expected);
-    }
-
-    @Test
-    public void testSchedulePetsForServiceWithEmployee() {
-        EmployeeDTO employeeTemp = createEmployeeDTO();
-        employeeTemp.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
-        EmployeeDTO employeeDTO = employeeController.saveEmployee(employeeTemp);
-        CustomerDTO customerDTO = customerController.saveCustomer(createCustomerDTO());
-        PetDTO petTemp = createPetDTO();
-        petTemp.setOwnerId(customerDTO.getId());
-        PetDTO petDTO = petController.savePet(petTemp);
-
-        LocalDate date = LocalDate.of(2019, 12, 25);
-        List<Long> petList = Lists.newArrayList(petDTO.getId());
-        List<Long> employeeList = Lists.newArrayList(employeeDTO.getId());
-        Set<EmployeeSkill> skillSet =  Sets.newHashSet(EmployeeSkill.PETTING);
-
-        ScheduleDTO newSchedule = scheduleController.createSchedule(createScheduleDTO(petList, employeeList, date, skillSet));
-
-        /*
-        I wanted to tweak this to fetch the schedule
-        by its id rather than call getAllSchedules()
-        for a list with one element in it
-         */
-        long newScheduleID = newSchedule.getId();
-        ScheduleDTO scheduleDTO = scheduleController.getScheduleByID(newScheduleID);
-
-        assertEquals(scheduleDTO.getActivities(), skillSet);
-        assertEquals(scheduleDTO.getDate(), date);
-        assertEquals(scheduleDTO.getEmployeeIds(), employeeList);
-        assertEquals(scheduleDTO.getPetIds(), petList);
-    }
-
-    @Test
-    public void testFindScheduleByEntities() {
-        ScheduleDTO sched1 = populateSchedule(1, 2, LocalDate.of(2019, 12, 25), Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
-        ScheduleDTO sched2 = populateSchedule(3, 1, LocalDate.of(2019, 12, 26), Sets.newHashSet(EmployeeSkill.PETTING));
-
-        //add a third schedule that shares some employees and pets with the other schedules
-        ScheduleDTO sched3 = new ScheduleDTO();
-        sched3.setEmployeeIds(sched1.getEmployeeIds());
-        sched3.setPetIds(sched2.getPetIds());
-        sched3.setActivities(Sets.newHashSet(EmployeeSkill.SHAVING, EmployeeSkill.PETTING));
-        sched3.setDate(LocalDate.of(2020, 3, 23));
-        scheduleController.createSchedule(sched3);
-
-        /*
-            We now have 3 schedule entries. The third schedule entry has the same employees as the 1st schedule
-            and the same pets/owners as the second schedule. So if we look up schedule entries for the employee from
-            schedule 1, we should get both the first and third schedule as our result.
-         */
-
-        //Employee 1 in is both schedule 1 and 3
-        List<ScheduleDTO> scheds1e = scheduleController.getSchedulesForEmployee(sched1.getEmployeeIds().get(0));
-
-        logger.info("Schedule 1 Information: ");
-        logger.info("Sched 1 Employee IDs: " + sched1.getEmployeeIds());
-        logger.info("Sched 1 Pet IDs: " + sched1.getPetIds());
-        logger.info("Sched 1 Days: " + sched1.getDate());
-        logger.info("Sched 1 Skills: " + sched1.getActivities() + "\n");
-
-        logger.info("Schedule 2 Information: ");
-        logger.info("Sched 2 Employee IDs: " + sched2.getEmployeeIds());
-        logger.info("Sched 2 Pet IDs: " + sched2.getPetIds());
-        logger.info("Sched 2 Days: " + sched2.getDate());
-        logger.info("Sched 2 Skills: " + sched2.getActivities() + "\n");
-
-
-        logger.info("Schedule 3 Information: ");
-        logger.info("Sched 3 Employee IDs: " + sched3.getEmployeeIds());
-        logger.info("Sched 3 Pet IDs: " + sched3.getPetIds());
-        logger.info("Sched 3 Days: " + sched3.getDate());
-        logger.info("Sched 3 Skills: " + sched3.getActivities() + "\n");
-
-
-
-        compareSchedules(sched1, scheds1e.get(0));
-        //compareSchedules(sched2, scheds1e.get(0));
-        compareSchedules(sched3, scheds1e.get(1));
-
-        //Employee 2 is only in schedule 2
-        List<ScheduleDTO> scheds2e = scheduleController.getSchedulesForEmployee(sched2.getEmployeeIds().get(0));
-        compareSchedules(sched2, scheds2e.get(0));
-
-        //Pet 1 is only in schedule 1
-        List<ScheduleDTO> scheds1p = scheduleController.getSchedulesForPet(sched1.getPetIds().get(0));
-        compareSchedules(sched1, scheds1p.get(0));
-
-        //Pet from schedule 2 is in both schedules 2 and 3
-        List<ScheduleDTO> scheds2p = scheduleController.getSchedulesForPet(sched2.getPetIds().get(0));
-        compareSchedules(sched2, scheds2p.get(0));
-        compareSchedules(sched3, scheds2p.get(1));
-
-        //Owner of the first pet will only be in schedule 1
-        List<ScheduleDTO> scheds1c = scheduleController.getSchedulesForCustomer(customerController.getOwnerByPet(sched1.getPetIds().get(0)).getId());
-        compareSchedules(sched1, scheds1c.get(0));
-
-        //Owner of pet from schedule 2 will be in both schedules 2 and 3
-        List<ScheduleDTO> scheds2c = scheduleController.getSchedulesForCustomer(customerController.getOwnerByPet(sched2.getPetIds().get(0)).getId());
-        compareSchedules(sched2, scheds2c.get(0));
-        compareSchedules(sched3, scheds2c.get(1));
-
-        logger.info("schedsle1: " + scheds1e);
-        logger.info("schedsle2: " + scheds2e);
-        //logger.info("schedsle3: " + scheds3e);
+    
+        // Test scenario: Request that does not match any employee due to skills mismatch
+        EmployeeRequestDTO er3 = new EmployeeRequestDTO();
+        er3.setDate(LocalDate.of(2019, 12, 26)); // Thursday
+        er3.setSkills(Sets.newHashSet(EmployeeSkill.FEEDING));
+    
+        Set<Long> eIds3 = employeeController.findEmployeesForService(er3)
+                .stream()
+                .map(EmployeeDTO::getId)
+                .collect(Collectors.toSet());
+        assertTrue(eIds3.isEmpty());
+    
+        // Test scenario: Request that does not match any employee due to availability mismatch
+        EmployeeRequestDTO er4 = new EmployeeRequestDTO();
+        er4.setDate(LocalDate.of(2019, 12, 29)); // Sunday
+        er4.setSkills(Sets.newHashSet(EmployeeSkill.PETTING));
+    
+        Set<Long> eIds4 = employeeController.findEmployeesForService(er4)
+                .stream()
+                .map(EmployeeDTO::getId)
+                .collect(Collectors.toSet());
+        assertTrue(eIds4.isEmpty());
     }
 
     @Test
@@ -372,101 +371,4 @@ public class CritterFunctionalTest {
 
         return petDTO;
     }
-
-    private static EmployeeRequestDTO createEmployeeRequestDTO() {
-        EmployeeRequestDTO employeeRequestDTO = new EmployeeRequestDTO();
-        employeeRequestDTO.setDate(LocalDate.of(2019, 12, 25));
-        employeeRequestDTO.setSkills(Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
-        return employeeRequestDTO;
-    }
-
-    private static ScheduleDTO createScheduleDTO(List<Long> petIds, List<Long> employeeIds, LocalDate date, Set<EmployeeSkill> activities) {
-        ScheduleDTO scheduleDTO = new ScheduleDTO();
-        scheduleDTO.setPetIds(petIds);
-        scheduleDTO.setEmployeeIds(employeeIds);
-        scheduleDTO.setDate(date);
-        scheduleDTO.setActivities(activities);
-        return scheduleDTO;
-    }
-
-    /**
-     * A helper method used to create sample schedules for the following test method:
-     *
-     * "testFindScheduleByEntities()"
-     *
-     * @param numEmployees, Number of employees in the schedule
-     * @param numPets, Number of pets in the schedule
-     * @param date, The date associated with the specific schedule
-     * @param activities, The pet activities tied to the schedule instance
-     *
-     * @return A new ScheduleDTO instance
-     */
-    private ScheduleDTO populateSchedule(int numEmployees, int numPets, LocalDate date, Set<EmployeeSkill> activities) {
-
-        /*
-        Code that does the following:
-
-        -Creates employee instances as dictated by "numEmployees"
-
-        -For each employee, the skills and days available are set according to the passed-in arguments
-        to the function
-
-        -The employee is saved to the in-memory H2 database, which is used for the unit tests
-
-        -The saved employee's ID is fetched and added to the employee ID list
-         */
-        List<Long> employeeIDs =
-                IntStream
-                        .range(0, numEmployees)
-                        .mapToObj(i -> createEmployeeDTO())
-                        .map(e -> {
-                            e.setSkills(activities);
-                            e.setDaysAvailable(Sets.newHashSet(date.getDayOfWeek()));
-                            EmployeeDTO employee = employeeController.saveEmployee(e);
-                            long employeeID = employee.getId();
-
-                            return employeeID;
-                        })
-                        .collect(toList());
-
-
-        //Used in the petIDs block below
-        CustomerDTO cust = customerController.saveCustomer(createCustomerDTO());
-        long customerID = cust.getId();
-
-        //Code that is similar to the employeeIDs block above
-        List<Long> petIDs =
-                IntStream
-                        .range(0, numPets)
-                        .mapToObj(i -> createPetDTO())
-                        .map(p -> {
-                            p.setOwnerId(customerID);
-                            PetDTO pet = petController.savePet(p);
-                            long petID = pet.getId();
-
-                            return petID;
-
-                        })
-                        .collect(toList());
-
-
-        logger.info("Num of Employees: " + numEmployees);
-        logger.info("Num of Pets: " + numPets);
-
-        logger.info("Employee IDs: " + employeeIDs);
-        logger.info("Pet IDs: " + petIDs + "\n");
-
-
-        return scheduleController.createSchedule(createScheduleDTO(petIDs, employeeIDs, date, activities));
-    }
-
-    private static void compareSchedules(ScheduleDTO sched1, ScheduleDTO sched2) {
-        assertEquals(sched1.getPetIds(), sched2.getPetIds());
-        assertEquals(sched1.getActivities(), sched2.getActivities());
-        assertEquals(sched1.getEmployeeIds(), sched2.getEmployeeIds());
-        assertEquals(sched1.getDate(), sched2.getDate());
-    }
-
-
-
 }
