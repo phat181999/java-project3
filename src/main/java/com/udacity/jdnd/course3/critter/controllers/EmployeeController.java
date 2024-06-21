@@ -34,25 +34,25 @@ public class EmployeeController {
             throw new IllegalArgumentException("Employee name cannot be null or empty");
         }
         
-        Employee employee = employeeDTOConverter.convertDTOToEntity(employeeDTO);
+        Employee employee = employeeDTOConverter.convertDtoEntity(employeeDTO);
         Employee savedEmployee = employeeService.saveEmployee(employee);
 
-        EmployeeDTO savedEmployeeDTO = employeeDTOConverter.convertEntityToDTO(savedEmployee);
+        EmployeeDTO savedEmployeeDTO = employeeDTOConverter.covertEnityDto(savedEmployee);
 
         return savedEmployeeDTO;
 
     }
 
     @GetMapping
-    public List<EmployeeDTO> getAllEmployees() {
-        List<Employee> listOfEmployees = employeeService.getAllEmployees();
+    public List<EmployeeDTO> getEmployees() {
+        List<Employee> listOfEmployees = employeeService.getEmployees();
         if (listOfEmployees == null ) {
-            throw new IllegalArgumentException("Employee empty");
+            throw new IllegalArgumentException("Employee is an empty");
         }
         
         List<EmployeeDTO> listOfEmployeesDTO;
         listOfEmployeesDTO = listOfEmployees.stream()
-                .map(employeeDTOConverter::convertEntityToDTO)
+                .map(employeeDTOConverter::covertEnityDto)
                 .collect(toList());
 
         return listOfEmployeesDTO;
@@ -65,7 +65,7 @@ public class EmployeeController {
         if (employee == null) {
             throw new IllegalArgumentException("Employee with ID " + employeeID + " not found");
         }
-        EmployeeDTO employeeDTO = employeeDTOConverter.convertEntityToDTO(employee);
+        EmployeeDTO employeeDTO = employeeDTOConverter.covertEnityDto(employee);
 
         return employeeDTO;
     }
@@ -82,14 +82,14 @@ public class EmployeeController {
     }
 
     @GetMapping("/availability")
-    public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
+    public List<EmployeeDTO> getAvailabilityEmployee(@RequestBody EmployeeRequestDTO employeeDTO) {
         List<Employee> listOfAvailableEmployees = employeeService.getAvailableEmployeesForService(employeeDTO.getDate(), employeeDTO.getSkills());
         if (listOfAvailableEmployees == null) {
             throw new IllegalArgumentException("Employee with ID " + listOfAvailableEmployees + " not found");
         }
         List<EmployeeDTO> listOfAvailableEmployeesDTO = listOfAvailableEmployees
                 .stream()
-                .map(employeeDTOConverter::convertEntityToDTO)
+                .map(employeeDTOConverter::covertEnityDto)
                 .collect(toList());
 
         return listOfAvailableEmployeesDTO;
@@ -101,26 +101,5 @@ public class EmployeeController {
             throw new IllegalArgumentException("Employee with ID not found");
         }
         employeeService.deleteEmployeeByID(employeeID);
-    }
-
-    @GetMapping("/lastname")
-    public List<EmployeeDTO> findEmployeesByLastNamePrefix(@RequestParam String startswith){
-        if (startswith == null || startswith.isEmpty()) {
-            throw new IllegalArgumentException("The 'startswith' parameter cannot be null or empty");
-        }
-        List<Employee> employeesByLastNamePrefix = employeeService.getEmployeesByLastNamePrefix(startswith);
-        if (employeesByLastNamePrefix.isEmpty()) {
-            logger.info("No employees found with last name starting with: " + startswith);
-        } else {
-            logger.info("Employees By Last Name Prefix: " + employeesByLastNamePrefix);
-        }
-        logger.info("Employees By Last Name Prefix: " + employeesByLastNamePrefix);
-
-        List<EmployeeDTO> employeesByLastNamePrefix_DTO = employeesByLastNamePrefix
-                .stream()
-                .map(employeeDTOConverter::convertEntityToDTO)
-                .collect(toList());
-
-        return employeesByLastNamePrefix_DTO;
     }
 }

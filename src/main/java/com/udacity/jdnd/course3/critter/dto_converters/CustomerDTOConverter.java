@@ -16,7 +16,7 @@ public class CustomerDTOConverter {
     @Autowired
     private CustomerService customerService;
 
-    public CustomerDTO convertCustomerToDTO(Customer customer){
+    public CustomerDTO convertCusTodo(Customer customer){
         if (customer == null) {
             throw new IllegalArgumentException("Customer must not be null");
         }
@@ -36,7 +36,7 @@ public class CustomerDTOConverter {
         return customerDTO;
     }
 
-    public Customer convertDTOToCustomer(CustomerDTO customerDTO) {
+    public Customer convertDtoCus(CustomerDTO customerDTO) {
         if (customerDTO == null) {
             throw new IllegalArgumentException("CustomerDTO must not be null");
         }

@@ -15,8 +15,8 @@ public class ScheduleService {
     @Autowired
     private ScheduleRepository scheduleRepository;
 
-    public List<Schedule> getAllSchedules(){
-        List<Schedule> schedules = scheduleRepository.getAllSchedules();
+    public List<Schedule> getSchedules(){
+        List<Schedule> schedules = scheduleRepository.getSchedules();
         if (schedules == null || schedules.isEmpty()) {
             return List.of(); 
         }

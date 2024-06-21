@@ -13,7 +13,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     //Returns a list of all customers
     @Query("Select c from Customer c")
-    List<Customer> getAllCustomers();
+    List<Customer> getCustomers();
 
     //Gets a customer based on their ID
     @Query("Select c from Customer c where c.id = :customerID")

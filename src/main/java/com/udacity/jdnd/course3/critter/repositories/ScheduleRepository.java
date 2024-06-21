@@ -12,7 +12,7 @@ import java.util.List;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Query("Select s from Schedule s")
-    List<Schedule> getAllSchedules();
+    List<Schedule> getSchedules();
 
     //Fetches a schedule by its id
     @Query("Select s from Schedule s where s.id = :scheduleID")

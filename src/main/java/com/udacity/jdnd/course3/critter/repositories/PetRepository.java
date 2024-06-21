@@ -13,7 +13,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     //Returns a list of all pets
     @Query("Select p from Pet p")
-    List<Pet> getAllPets();
+    List<Pet> getPets();
 
     //Gets a pet by its ID
     @Query("Select p from Pet p where p.id = :petID")

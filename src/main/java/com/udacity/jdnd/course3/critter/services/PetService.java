@@ -19,8 +19,8 @@ public class PetService {
     @Autowired
     private CustomerService customerService;
 
-    public List<Pet> getAllPets() {
-        return petRepository.getAllPets();
+    public List<Pet> getPets() {
+        return petRepository.getPets();
     }
 
     public Pet getPetByID(Long petID) {
@@ -43,7 +43,7 @@ public class PetService {
         return pets;
     }
 
-    public Pet savePet(Pet pet) {
+    public Pet createNewPet(Pet pet) {
         if (pet == null) {
             throw new IllegalArgumentException("Pet cannot be null");
         }
@@ -59,7 +59,7 @@ public class PetService {
         return savedPet;
     }
 
-    public void deletePetByID(Long petID) {
+    public void deletePet(Long petID) {
         if (petID == null) {
             throw new IllegalArgumentException("Pet ID cannot be null");
         }

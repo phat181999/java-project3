@@ -31,9 +31,9 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public List<Employee> getAllEmployees(){
+    public List<Employee> getEmployees(){
 
-        List<Employee> employees = employeeRepository.getAllEmployees();
+        List<Employee> employees = employeeRepository.getEmployees();
         if (employees == null || employees.isEmpty()) {
             throw new RuntimeException("No employees found");
         }
@@ -101,7 +101,7 @@ public class EmployeeService {
             throw new IllegalArgumentException("Last name prefix cannot be null or empty");
         }
 
-        List<Employee> allEmployees = employeeRepository.getAllEmployees();
+        List<Employee> allEmployees = employeeRepository.getEmployees();
         if (allEmployees == null || allEmployees.isEmpty()) {
             throw new RuntimeException("No employees found");
         }

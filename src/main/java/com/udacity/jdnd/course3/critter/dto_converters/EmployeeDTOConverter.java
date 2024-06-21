@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class EmployeeDTOConverter {
 
    
-    public EmployeeDTO convertEntityToDTO(Employee employee){
+    public EmployeeDTO covertEnityDto(Employee employee){
         EmployeeDTO employeeDTO = new EmployeeDTO();
 
         BeanUtils.copyProperties(employee, employeeDTO, "employeeSkills", "employeeDaysOfWeekAvailable");
@@ -27,7 +27,7 @@ public class EmployeeDTOConverter {
     }
 
  
-    public Employee convertDTOToEntity(EmployeeDTO employeeDTO){
+    public Employee convertDtoEntity(EmployeeDTO employeeDTO){
         Employee employee = new Employee();
 
         BeanUtils.copyProperties(employeeDTO, employee, "skills", "daysAvailable");

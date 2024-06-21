@@ -20,8 +20,8 @@ public class CustomerService {
     private CustomerRepository customerRepository;
 
     @Autowired
-    public List<Customer> getAllCustomers(){
-        List<Customer> customers = customerRepository.getAllCustomers();
+    public List<Customer> getCustomers(){
+        List<Customer> customers = customerRepository.getCustomers();
         if (customers == null || customers.isEmpty()) {
             throw new RuntimeException("No customers found");
         }
@@ -54,7 +54,7 @@ public class CustomerService {
         return customer;
     }
 
-    public Customer saveCustomer(Customer customer){
+    public Customer createNewUser(Customer customer){
 
         if (customer == null) {
             throw new IllegalArgumentException("Customer cannot be null");

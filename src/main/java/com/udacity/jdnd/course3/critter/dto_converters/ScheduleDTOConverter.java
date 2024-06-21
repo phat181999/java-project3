@@ -23,7 +23,7 @@ public class ScheduleDTOConverter {
     @Autowired
     private PetRepository petRepository;
 
-    public ScheduleDTO convertEntityToDTO(Schedule schedule){
+    public ScheduleDTO covertEnityDto(Schedule schedule){
         if (schedule == null) {
             return null;
         }
@@ -48,7 +48,7 @@ public class ScheduleDTOConverter {
         return scheduleDTO;
     }
 
-    public Schedule convertDTOToEntity(ScheduleDTO scheduleDTO){
+    public Schedule convertDtoEntity(ScheduleDTO scheduleDTO){
         Schedule schedule = new Schedule();
 
         BeanUtils.copyProperties(scheduleDTO, schedule);

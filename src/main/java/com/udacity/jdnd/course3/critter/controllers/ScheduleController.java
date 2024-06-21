@@ -24,24 +24,24 @@ public class ScheduleController {
     private ScheduleService scheduleService;
 
     @PostMapping
-    public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+    public ScheduleDTO createNewSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         if (scheduleDTO == null) {
             throw new IllegalArgumentException("ScheduleDTO must not be null");
         }
     
-        Schedule schedule = scheduleDTOConverter.convertDTOToEntity(scheduleDTO);
+        Schedule schedule = scheduleDTOConverter.convertDtoEntity(scheduleDTO);
     
         Schedule savedSchedule = scheduleService.saveSchedule(schedule);
     
-        ScheduleDTO savedScheduleDTO = scheduleDTOConverter.convertEntityToDTO(savedSchedule);
+        ScheduleDTO savedScheduleDTO = scheduleDTOConverter.covertEnityDto(savedSchedule);
     
         return savedScheduleDTO;
 
     }
 
     @GetMapping
-    public List<ScheduleDTO> getAllSchedules() {
-        List<Schedule> listOfSchedules = scheduleService.getAllSchedules();
+    public List<ScheduleDTO> getSchedules() {
+        List<Schedule> listOfSchedules = scheduleService.getSchedules();
 
         if (listOfSchedules == null) {
             throw new IllegalStateException("Received null list of schedules from service");
@@ -52,7 +52,7 @@ public class ScheduleController {
         }
 
         List<ScheduleDTO> listOfSchedulesDTO = listOfSchedules.stream()
-                .map(scheduleDTOConverter::convertEntityToDTO)
+                .map(scheduleDTOConverter::covertEnityDto)
                 .collect(Collectors.toList());
 
         return listOfSchedulesDTO;
@@ -70,25 +70,25 @@ public class ScheduleController {
             throw new NoSuchElementException("Schedule not found for ID: " + scheduleID);
         }
 
-        ScheduleDTO scheduleDTO = scheduleDTOConverter.convertEntityToDTO(schedule);
+        ScheduleDTO scheduleDTO = scheduleDTOConverter.covertEnityDto(schedule);
 
         return scheduleDTO;
     }
 
     @GetMapping("/pet/{petId}")
-    public List<ScheduleDTO> getSchedulesForPet(@PathVariable long petId) {
+    public List<ScheduleDTO> getSchedulesByPet(@PathVariable long petId) {
         List<Schedule> listOfSchedulesByPetID = scheduleService.getAllSchedulesByPetID(petId);
 
         List<ScheduleDTO> listOfSchedulesByPetID_DTO = listOfSchedulesByPetID
                 .stream()
-                .map(scheduleDTOConverter::convertEntityToDTO)
+                .map(scheduleDTOConverter::covertEnityDto)
                 .collect(toList());
 
         return listOfSchedulesByPetID_DTO;
     }
 
     @GetMapping("/employee/{employeeId}")
-    public List<ScheduleDTO> getSchedulesForEmployee(@PathVariable long employeeId) {
+    public List<ScheduleDTO> getSchedulesByEmployee(@PathVariable long employeeId) {
         if (employeeId <= 0) {
             throw new IllegalArgumentException("Invalid employee ID: " + employeeId);
         }
@@ -104,14 +104,14 @@ public class ScheduleController {
         }
 
         List<ScheduleDTO> listOfSchedulesByEmployeeID_DTO = listOfSchedulesByEmployeeID.stream()
-                .map(scheduleDTOConverter::convertEntityToDTO)
+                .map(scheduleDTOConverter::covertEnityDto)
                 .collect(Collectors.toList());
 
         return listOfSchedulesByEmployeeID_DTO;
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<ScheduleDTO> getSchedulesForCustomer(@PathVariable long customerId) {
+    public List<ScheduleDTO> getSchedulesByCustomer(@PathVariable long customerId) {
         if (customerId <= 0) {
             throw new IllegalArgumentException("Invalid customer ID: " + customerId);
         }
@@ -127,7 +127,7 @@ public class ScheduleController {
         }
 
         List<ScheduleDTO> listOfSchedulesByCustomerID_DTO = listOfSchedulesByCustomerID.stream()
-                .map(scheduleDTOConverter::convertEntityToDTO)
+                .map(scheduleDTOConverter::covertEnityDto)
                 .collect(Collectors.toList());
 
         return listOfSchedulesByCustomerID_DTO;

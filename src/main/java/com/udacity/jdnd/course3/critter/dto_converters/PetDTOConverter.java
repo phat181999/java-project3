@@ -15,7 +15,7 @@ public class PetDTOConverter {
     private CustomerService customerService;
 
  
-    public PetDTO convertEntityToDTO(Pet pet){
+    public PetDTO covertEnityDto(Pet pet){
         PetDTO petDTO = new PetDTO();
         if (pet.getCustomer() != null) {
             Long customerId = pet.getCustomer().getId();
@@ -31,7 +31,7 @@ public class PetDTOConverter {
     }
 
   
-    public Pet convertDTOToEntity(PetDTO petDTO){
+    public Pet convertDtoEntity(PetDTO petDTO){
         Pet pet = new Pet();
         Long customerId = petDTO.getOwnerId();
 

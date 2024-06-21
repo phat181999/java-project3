@@ -28,23 +28,23 @@ public class CustomerController {
     private CustomerDTOConverter customerDTOConverter;
 
     @PostMapping
-    public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
-        Customer customer = customerDTOConverter.convertDTOToCustomer(customerDTO);
+    public CustomerDTO createNewUser(@RequestBody CustomerDTO customerDTO){
+        Customer customer = customerDTOConverter.convertDtoCus(customerDTO);
         if (customer == null) {
             throw new IllegalArgumentException("Customer must not be null");
         }
-        Customer savedCustomer = customerService.saveCustomer(customer);
+        Customer savedCustomer = customerService.createNewUser(customer);
         if (savedCustomer == null) {
             throw new IllegalArgumentException("Customer must not be null");
         }
-        CustomerDTO savedCustomerDTO = customerDTOConverter.convertCustomerToDTO(savedCustomer);
+        CustomerDTO savedCustomerDTO = customerDTOConverter.convertCusTodo(savedCustomer);
 
         return savedCustomerDTO;
     }
 
     @GetMapping
-    public List<CustomerDTO> getAllCustomers(){
-        List<Customer> listOfCustomers = customerService.getAllCustomers();
+    public List<CustomerDTO> getCustomers(){
+        List<Customer> listOfCustomers = customerService.getCustomers();
 
         List<CustomerDTO> listOfCustomersDTO;
         if (listOfCustomers == null || listOfCustomers.isEmpty()) {
@@ -52,7 +52,7 @@ public class CustomerController {
         }
     
         listOfCustomersDTO = listOfCustomers.stream()
-                .map(customerDTOConverter::convertCustomerToDTO)
+                .map(customerDTOConverter::convertCusTodo)
                 .collect(toList());
 
         return listOfCustomersDTO;
@@ -66,7 +66,7 @@ public class CustomerController {
             throw new IllegalArgumentException("Customer with ID " + customerID + " not found");
         }
     
-        CustomerDTO customerDTO = customerDTOConverter.convertCustomerToDTO(customer);
+        CustomerDTO customerDTO = customerDTOConverter.convertCusTodo(customer);
 
         return customerDTO;
 
@@ -78,7 +78,7 @@ public class CustomerController {
         if (customerByPetID == null) {
             throw new IllegalArgumentException("Customer with ID " + customerByPetID + " not found");
         }
-        CustomerDTO customerByPetID_DTO = customerDTOConverter.convertCustomerToDTO(customerByPetID);
+        CustomerDTO customerByPetID_DTO = customerDTOConverter.convertCusTodo(customerByPetID);
 
         return customerByPetID_DTO;
     }
@@ -105,7 +105,7 @@ public class CustomerController {
         customer.setPhoneNumber(customerToUpdate.getPhoneNumber());
         customer.setNotes(customerToUpdate.getNotes());
 
-        customerService.saveCustomer(customer);
+        customerService.createNewUser(customer);
 
     }
 

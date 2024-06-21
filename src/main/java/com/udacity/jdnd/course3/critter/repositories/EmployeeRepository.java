@@ -14,7 +14,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     //Returns a list of all employees
     @Query("Select e from Employee e")
-    List<Employee> getAllEmployees();
+    List<Employee> getEmployees();
 
     //Gets an employee by their ID
     @Query("Select e from Employee e where e.id = :employeeID")
